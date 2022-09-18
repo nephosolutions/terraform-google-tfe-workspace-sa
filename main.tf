@@ -12,22 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-data "google_project" "project" {
-  project_id = var.google_project_id
-}
-
 resource "google_service_account" "tfe_runner" {
   account_id   = random_id.google_service_account["tfe_runner"].hex
   description  = "Manages service accounts and IAM permissions."
   display_name = "Terraform Cloud management service account"
-  project      = data.google_project.project.project_id
+  project      = var.google_project_id
 }
 
 resource "google_service_account" "tfe_workspace" {
   account_id   = random_id.google_service_account["tfe_workspace"].hex
   description  = "Impersonates service accounts but has no permission on any other resource."
   display_name = "Terraform Cloud authentication service account"
-  project      = data.google_project.project.project_id
+  project      = var.google_project_id
 }
 
 resource "google_service_account_iam_binding" "tfe_runner" {

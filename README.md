@@ -43,7 +43,6 @@ No modules.
 | [google_service_account_key.tfe_workspace](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/service_account_key) | resource |
 | [random_id.google_service_account](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/id) | resource |
 | [time_rotating.google_service_account_key](https://registry.terraform.io/providers/hashicorp/time/latest/docs/resources/rotating) | resource |
-| [google_project.project](https://registry.terraform.io/providers/hashicorp/google/latest/docs/data-sources/project) | data source |
 
 ## Inputs
 
