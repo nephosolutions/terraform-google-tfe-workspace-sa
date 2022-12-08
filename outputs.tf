@@ -12,11 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-output "tfe_runner_sa" {
-  description = "The Google Cloud service account for the TFE runner."
-  value       = google_service_account.tfe_runner.email
-}
-
 output "tfe_workspace_sa" {
   description = "The Google Cloud service account for the TFE workspace."
   value       = google_service_account.tfe_workspace.email
@@ -25,5 +20,5 @@ output "tfe_workspace_sa" {
 output "tfe_workspace_sa_key" {
   description = "The Google Cloud credentials for the TFE workspace service account in JSON format, base64 encoded."
   sensitive   = true
-  value       = google_service_account_key.tfe_workspace.private_key
+  value       = google_service_account_key.tfe_workspace_sa.private_key
 }

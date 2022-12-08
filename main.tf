@@ -12,71 +12,30 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-resource "google_service_account" "tfe_runner" {
-  account_id   = random_id.google_service_account["tfe_runner"].hex
-  description  = "Manages service accounts and IAM permissions."
-  display_name = "Terraform Cloud management service account"
-  project      = var.google_project_id
-}
-
 resource "google_service_account" "tfe_workspace" {
-  account_id   = random_id.google_service_account["tfe_workspace"].hex
+  account_id   = "terraform-${lower(var.tfe_workspace_id)}"
   description  = "Impersonates service accounts but has no permission on any other resource."
   display_name = "Terraform Cloud authentication service account"
   project      = var.google_project_id
 }
 
-resource "google_service_account_iam_binding" "tfe_runner" {
-  for_each = toset([
-    /* Impersonate service accounts (create OAuth2 access tokens, sign blobs or JWTs, etc). */
-    "roles/iam.serviceAccountTokenCreator",
-
-    /* Run operations as the service account. */
-    "roles/iam.serviceAccountUser",
-  ])
-
-  service_account_id = google_service_account.tfe_runner.name
-  role               = each.value
-
-  members = [
-    "serviceAccount:${google_service_account.tfe_workspace.email}",
-  ]
-}
-
-/* Create and manage (and rotate) service account keys. */
-resource "google_service_account_iam_binding" "tfe_workspace" {
-  service_account_id = google_service_account.tfe_workspace.name
-  role               = "roles/iam.serviceAccountKeyAdmin"
-
-  members = var.tfe_workspace_sa_key_admins
-}
-
-resource "google_service_account_key" "tfe_workspace" {
-  service_account_id = google_service_account_iam_binding.tfe_workspace.service_account_id
-
-  keepers = {
-    rotation_time = time_rotating.google_service_account_key.rotation_rfc3339
-  }
-
-  lifecycle {
-    create_before_destroy = true
-  }
-}
-
-resource "random_id" "google_service_account" {
-  for_each = toset([
-    "tfe_runner",
-    "tfe_workspace",
-  ])
-
-  byte_length = 4
-  prefix      = "${lower(var.tfe_workspace_id)}-"
-}
-
-resource "time_rotating" "google_service_account_key" {
+/* Create and and rotate service account keys. */
+resource "time_rotating" "tfe_workspace_sa_key" {
   rotation_days = var.tfe_workspace_sa_key_rotation_days
 
   triggers = {
     tfe_workspace_id = var.tfe_workspace_id
+  }
+}
+
+resource "google_service_account_key" "tfe_workspace_sa" {
+  service_account_id = google_service_account.tfe_workspace.id
+
+  keepers = {
+    rotation_time = time_rotating.tfe_workspace_sa_key.rotation_rfc3339
+  }
+
+  lifecycle {
+    create_before_destroy = true
   }
 }

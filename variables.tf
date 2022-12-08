@@ -22,13 +22,8 @@ variable "tfe_workspace_id" {
   type        = string
 }
 
-variable "tfe_workspace_sa_key_admins" {
-  description = "List of Terraform workspace service account key admins."
-  type        = list(string)
-}
-
 variable "tfe_workspace_sa_key_rotation_days" {
-  default     = 30
   description = "Interval in days to rotate the workspace service account key."
   type        = number
+  default     = 30
 }
